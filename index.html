@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تطبيق بلغوا عني | V42.2</title>
+    <title>بلغوا عني | V42.6</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@700&family=Amiri:ital@1&display=swap" rel="stylesheet">
     
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
@@ -12,237 +12,209 @@
 
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body, html { height: 100%; font-family: 'Cairo', sans-serif; overflow: hidden; background-color: #000b18; direction: rtl; }
-        .bg-container { position: absolute; inset: 0; background-image: url('https://fv5-4.files.fm/thumb.php?i=wf96xqfs9c&v=1&n=Ramadan+Kareem+Background+In+Blue+And+Gold+Theme+With+Arabic+Lanterns+Mosque+Backgrounds+_+AI+Free+Download+-+Pikbest_cropped.jpg'); background-size: cover; background-position: center; z-index: 1; }
-        .overlay { position: absolute; inset: 0; background: rgba(0, 11, 24, 0.7); z-index: 2; }
+        body, html { height: 100%; font-family: 'Cairo', sans-serif; overflow: hidden; background-color: #000b18; direction: rtl; color: white; }
+        .bg-container { position: absolute; inset: 0; background: url('https://fv5-4.files.fm/thumb.php?i=wf96xqfs9c&v=1&n=Ramadan+Kareem+Background+In+Blue+And+Gold+Theme+With+Arabic+Lanterns+Mosque+Backgrounds+_+AI+Free+Download+-+Pikbest_cropped.jpg') center/cover; z-index: 1; }
+        .overlay { position: absolute; inset: 0; background: rgba(0, 11, 24, 0.75); z-index: 2; }
         .main-wrapper { position: relative; width: 100%; height: 100%; z-index: 3; }
         .page { display: none; width: 100%; height: 100%; justify-content: center; align-items: center; padding: 20px; }
         .page.active { display: flex; }
-        .card { background: rgba(0, 11, 24, 0.85); backdrop-filter: blur(15px); padding: 25px; border-radius: 25px; text-align: center; width: 100%; max-width: 450px; color: white; border: 1px solid #d4af37; box-shadow: 0 0 30px rgba(212, 175, 55, 0.2); max-height: 90vh; overflow-y: auto; }
-        .welcome-inline { font-size: 0.85rem; margin-bottom: 20px; font-family: 'Amiri', serif; color: #f1c40f; padding: 12px; border-radius: 12px; background: rgba(255,255,255,0.05); border: 1px dashed #d4af37; line-height: 1.6; }
-        .select-box { background: rgba(0, 26, 51, 0.9); border: 1px solid #d4af37; border-radius: 12px; color: #f1c40f; padding: 12px; width: 100%; margin-bottom: 10px; outline: none; font-size: 0.9rem; }
+        .card { background: rgba(0, 15, 30, 0.9); backdrop-filter: blur(15px); padding: 25px; border-radius: 25px; text-align: center; width: 100%; max-width: 450px; border: 1px solid #d4af37; box-shadow: 0 0 40px rgba(0,0,0,0.5); }
+        .welcome-inline { font-size: 0.85rem; margin-bottom: 20px; font-family: 'Amiri', serif; color: #f1c40f; padding: 12px; border: 1px dashed #d4af37; background: rgba(255,255,255,0.03); border-radius: 12px; }
+        .select-box { background: #001a33; border: 1px solid #d4af37; border-radius: 10px; color: #f1c40f; padding: 12px; width: 100%; margin-bottom: 10px; outline: none; }
         .countdown { display: flex; justify-content: center; gap: 8px; direction: ltr; margin: 15px 0; }
-        .box { background: rgba(212, 175, 55, 0.1); padding: 12px 5px; border-radius: 15px; border-bottom: 4px solid #27ae60; flex: 1; }
-        .num { font-size: 1.6rem; font-weight: bold; color: #f1c40f; display: block; }
-        .nav-side { position: absolute; bottom: 25px; width: 100%; display: flex; justify-content: space-between; padding: 0 20px; z-index: 1000; }
-        .side-btn { display: flex; flex-direction: column; align-items: center; cursor: pointer; width: 90px; transition: 0.3s; }
-        .side-btn.hidden { visibility: hidden; opacity: 0; }
-        .arrow-box { background: rgba(212, 175, 55, 0.2); border: 1px solid #d4af37; color: #f1c40f; width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; }
-        .side-text { color: #fff; font-size: 0.7rem; margin-top: 5px; font-weight: bold; background: rgba(0,0,0,0.6); padding: 3px 8px; border-radius: 8px; }
-        .lang-controls { position: absolute; top: 15px; left: 15px; z-index: 1000; display: flex; align-items: center; gap: 8px; }
-        .globe-emoji { font-size: 28px; cursor: pointer; padding: 5px; }
-        .select-box-lang { background: #001a33; border: 1px solid #d4af37; color: #fff; padding: 5px; display: none; border-radius: 8px; }
-        .lang-controls.active .select-box-lang { display: block; }
-        .copyright { color: #d4af37; font-size: 0.75rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px; margin-top: 15px; font-family: 'Amiri'; }
-        .cycle-btn { font-size: 2rem; cursor: pointer; color: #f1c40f; user-select: none; }
+        .box { background: rgba(212, 175, 55, 0.1); padding: 10px; border-radius: 12px; border-bottom: 3px solid #27ae60; flex: 1; }
+        .num { font-size: 1.5rem; font-weight: bold; color: #f1c40f; display: block; }
+        .nav-side { position: absolute; bottom: 30px; width: 100%; display: flex; justify-content: space-between; padding: 0 25px; z-index: 1000; }
+        .side-btn { cursor: pointer; text-align: center; transition: 0.3s; }
+        .side-btn.hidden { visibility: hidden; }
+        .arrow-box { background: rgba(212, 175, 55, 0.2); border: 1px solid #d4af37; color: #f1c40f; width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; margin: 0 auto; }
+        .side-text { color: #fff; font-size: 0.75rem; margin-top: 5px; display: block; background: rgba(0,0,0,0.5); padding: 2px 8px; border-radius: 5px; }
+        audio { width: 100%; margin-top: 10px; filter: sepia(20%) saturate(70%) hue-rotate(10deg); }
     </style>
 </head>
 <body>
     <div class="bg-container"></div>
     <div class="overlay"></div>
-    
-    <div class="lang-controls" id="langControls">
-        <div class="globe-emoji" onclick="toggleLangSelect()">🌐</div>
-        <select id="langSelect" class="select-box-lang" onchange="changeLang()">
-            <option value="ar">العربية</option>
-            <option value="fr">Français</option>
-            <option value="en">English</option>
-        </select>
-    </div>
 
     <div class="main-wrapper">
         <div class="page active" id="p0">
             <div class="card">
                 <div id="welcome-msg" class="welcome-inline">--</div>
-                <h2 id="q-title" style="color:#f1c40f; margin-bottom:15px; font-family:'Amiri';">القرآن الكريم</h2>
-                <select id="reciterSelect" class="select-box" onchange="updateAudioSource(true)"></select>
-                <select id="surahSelect" class="select-box" onchange="updateAudioSource(true)"></select>
-                <audio id="quranPlayer" controls style="width:100%; margin-top:5px;"></audio>
-                <p class="copyright cp-text">--</p>
+                <h2 style="color:#f1c40f; font-family:'Amiri'; margin-bottom:15px;">القرآن الكريم</h2>
+                <select id="reciterSelect" class="select-box"></select>
+                <select id="surahSelect" class="select-box"></select>
+                <audio id="quranPlayer" controls></audio>
+                <p class="copyright cp-text" style="margin-top:15px; font-size:0.7rem; color:#d4af37;"></p>
             </div>
         </div>
 
         <div class="page" id="p1">
             <div class="card">
-                <h2 id="s-title" style="color:#f1c40f; margin-bottom:15px; font-family:'Amiri';">صَحِيحُ البُخَارِيِّ</h2>
-                <select id="hadithSelect" class="select-box" onchange="updateHadithSource(true)"></select>
-                <audio id="hadithPlayer" controls style="width:100%; margin-top:5px;"></audio>
-                <p class="copyright cp-text">--</p>
+                <h2 style="color:#f1c40f; font-family:'Amiri'; margin-bottom:15px;">صَحِيحُ البُخَارِيِّ</h2>
+                <select id="hadithSelect" class="select-box"></select>
+                <audio id="hadithPlayer" controls></audio>
+                <p class="copyright cp-text" style="margin-top:15px; font-size:0.7rem; color:#d4af37;"></p>
             </div>
         </div>
 
         <div class="page" id="p2">
             <div class="card">
-                <h2 id="t-title" style="color:#f1c40f; margin-bottom:15px; font-family:'Amiri';">الأذكار</h2>
-                <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom: 10px;">
-                    <div class="cycle-btn" onclick="moveCycle(-1)">▶</div>
+                <h2 id="t-title" style="color:#f1c40f; font-family:'Amiri'; margin-bottom:15px;">الأذكار</h2>
+                <div style="display:flex; align-items:center; gap:10px; margin-bottom:15px;">
+                    <div onclick="moveCycle(-1)" style="font-size:2rem; cursor:pointer; color:#f1c40f;">▶</div>
                     <div style="flex:1">
-                        <span id="tasbih-txt" style="font-size:1.1rem; font-family:'Amiri';">--</span><br>
-                        <span id="target-lbl" style="font-size:0.8rem; color:#d4af37;">--</span>
+                        <div id="tasbih-txt" style="font-family:'Amiri'; min-height:80px; font-size:1.1rem; display:flex; align-items:center; justify-content:center;">--</div>
+                        <small id="target-lbl" style="color:#d4af37;"></small>
                     </div>
-                    <div class="cycle-btn" onclick="moveCycle(1)">◀</div>
+                    <div onclick="moveCycle(1)" style="font-size:2rem; cursor:pointer; color:#f1c40f;">◀</div>
                 </div>
-                <div style="font-size:3.5rem; font-weight:bold; color:#f1c40f;" id="tasbih-count">0</div>
-                <button onclick="handleTasbih()" style="width:100px; height:100px; border-radius:50%; border:3px solid #d4af37; background:none; color:white;" id="t-btn">ذكر</button>
-                <p class="copyright cp-text">--</p>
+                <div id="tasbih-count" style="font-size:3.5rem; color:#f1c40f; font-weight:bold; margin-bottom:10px;">0</div>
+                <button onclick="handleTasbih()" style="width:90px; height:90px; border-radius:50%; border:2px solid #d4af37; background:none; color:white; font-family:'Cairo';" id="t-btn">ذكر</button>
+                <p class="copyright cp-text" style="margin-top:15px; font-size:0.7rem; color:#d4af37;"></p>
             </div>
         </div>
 
         <div class="page" id="p3">
             <div class="card">
-                <select id="eventSelect" class="select-box" onchange="updateContent()">
+                <select id="eventSelect" class="select-box" onchange="updateCountdown()">
                     <option value="adha">عيد الأضحى</option>
                     <option value="ramadan">شهر رمضان</option>
                     <option value="fitr">عيد الفطر</option>
                 </select>
-                <h2 id="remain-label" style="color:#f1c40f; font-size: 0.9rem;">--</h2>
-                <h1 id="eventTitle" style="color:#fff; margin-bottom:15px; font-family:'Amiri';">--</h1>
+                <div id="remain-label" style="color:#f1c40f; font-size:0.8rem; margin-top:10px;">--</div>
+                <h2 id="eventTitle" style="font-family:'Amiri'; margin:10px 0;">--</h2>
                 <div class="countdown">
-                    <div class="box"><span id="days" class="num">00</span><span class="lab" id="l-days">--</span></div>
-                    <div class="box"><span id="hours" class="num">00</span><span class="lab" id="l-hours">--</span></div>
-                    <div class="box"><span id="minutes" class="num">00</span><span class="lab" id="l-mins">--</span></div>
-                    <div class="box"><span id="seconds" class="num">00</span><span class="lab" id="l-secs">--</span></div>
+                    <div class="box"><span id="days" class="num">00</span><small id="l-days">--</small></div>
+                    <div class="box"><span id="hours" class="num">00</span><small id="l-hours">--</small></div>
+                    <div class="box"><span id="minutes" class="num">00</span><small id="l-mins">--</small></div>
+                    <div class="box"><span id="seconds" class="num">00</span><small id="l-secs">--</small></div>
                 </div>
-                <p class="copyright cp-text">--</p>
+                <p class="copyright cp-text" style="margin-top:15px; font-size:0.7rem; color:#d4af37;"></p>
             </div>
         </div>
     </div>
 
     <div class="nav-side">
-        <div id="btnPrev" class="side-btn" onclick="switchPage(-1)"><div class="arrow-box">→</div><span id="prev-text" class="side-text">--</span></div>
+        <div id="btnPrev" class="side-btn hidden" onclick="switchPage(-1)"><div class="arrow-box">→</div><span id="prev-text" class="side-text">--</span></div>
         <div id="btnNext" class="side-btn" onclick="switchPage(1)"><div class="arrow-box">←</div><span id="next-text" class="side-text">--</span></div>
     </div>
 
     <script>
-        // 1. Firebase Configuration (ONLY ONCE)
-        const firebaseConfig = {
+        const config = {
             apiKey: "AIzaSyDoruiRI56JGr6Kye8DUd6y2if9zqCxLrQ",
             authDomain: "mbarek-84c23.firebaseapp.com",
             databaseURL: "https://mbarek-84c23-default-rtdb.firebaseio.com",
-            projectId: "mbarek-84c23",
-            storageBucket: "mbarek-84c23.appspot.com",
-            messagingSenderId: "860470868100",
-            appId: "1:860470868100:web:3cf242746843db59532ad1"
+            projectId: "mbarek-84c23"
         };
+        firebase.initializeApp(config);
+
+        const surahs = ["الفاتحة","البقرة","آل عمران","النساء","المائدة","الأنعام","الأعراف","الأنفال","التوبة","يونس","هود","يوسف","الرعد","إبراهيم","الحجر","النحل","الإسراء","الكهف","مريم","طه","الأنبياء","الحج","المؤمنون","النور","الفرقان","الشعراء","النمل","القصص","العنكبوت","الروم","لقمان","السجدة","الأحزاب","سبأ","فاطر","يس","الصافات","ص","الزمر","غافر","فصلت","الشورى","الزخرف","الدخان","الجاثية","الأحقاف","محمد","الفتح","الحجرات","ق","الذاريات","الطور","النجم","القمر","الرحمن","الواقعة","الحديد","المجادلة","الحشر","الممتحنة","الصف","الجمعة","المنافقون","التغابن","الطلاق","التحريم","الملك","القلم","الحاقة","المعارج","نوح","الجن","المزمل","المدثر","القيامة","الإنسان","المرسلات","النبأ","النازعات","عبس","التكوير","الانفطار","المطففين","الانشقاق","البروج","الطارق","الأعلى","الغاشية","الفجر","البلد","الشمس","الليل","الضحى","الشرح","التين","العلق","القدر","البينة","الزلزلة","العاديات","القارعة","التكاثر","العصر","الهمزة","الفيل","قريش","الماعون","الكوثر","الكافرون","النصر","المسد","الإخلاص","الفلق","الناس"];
+        const bukhari = ["بدء الوحي", "الإيمان", "العلم", "الوضوء", "الغسل", "الحيض", "التيمم", "الصلاة", "مواقيت الصلاة", "الأذان", "الجمعة", "الخوف", "العيدين", "الوتر", "الاستسقاء", "الكسوف", "سجود القرآن", "تقصير الصلاة", "التهجد", "فضل الصلاة بمكة والمدينة", "السهو", "الجنائز", "الزكاة", "الحج", "العمرة", "المحصر", "جزاء الصيد", "فضائل المدينة", "الصوم", "صلاة التراويح", "فضل ليلة القدر", "الاعتكاف", "البيوع", "السلم", "الشفعة", "الإجارة", "الحوالات", "الكفالة", "الوكالة", "الحرث والمزارعة", "المساقاة", "الاستقراض", "الخصومات", "اللقطة", "المظالم", "الشركة", "الرهن", "العتق", "المكاتب", "الهبة", "الشهادات", "الصلح", "الشروط", "الوصايا", "الجهاد والسير", "الخمس", "الجزية", "بدء الخلق", "الأنبياء", "المناقب", "فضائل الصحابة", "مناقب الأنصار", "المغازي", "التفسير", "فضائل القرآن", "النكاح", "الطلاق", "النفقات", "الأطعمة", "العقيقة", "الذبائح والصيد", "الأضاحي", "الأشربة", "المرضى", "الطب", "اللباس", "الأدب", "الاستئذان", "الدعوات", "الرقاق", "القدر", "الأيمان والنذور", "كفارات الأيمان", "الفرائض", "الحدود", "المحاربين", "الديات", "استتابة المرتدين", "الإكراه", "الحيل", "تعبير الرؤيا", "الفتن", "الأحكام", "التمني", "أخبار الآحاد", "الاعتصام بالكتاب والسنة", "التوحيد"];
+        const reciters = [{n:"أبو بكر الشاطري", u:"shatri"}, {n:"أحمد العجمي", u:"ajm"}, {n:"إدريس أبكر", u:"abkr"}, {n:"خالد الجليل", u:"jleel"}, {n:"خالد القحطاني", u:"qht"}, {n:"سعد الغامدي", u:"s_gmd"}, {n:"عبد الباسط عبد الصمد", u:"basit"}, {n:"علي الحذيفي", u:"hthfi"}, {n:"فارس عباد", u:"frs_a"}, {n:"ماهر المعيقلي", u:"maher"}, {n:"محمد أيوب", u:"ayyub"}, {n:"محمد صديق المنشاوي", u:"minsh"}, {n:"محمد اللحيدان", u:"lhdan"}, {n:"محمود خليل الحصري", u:"husr"}, {n:"محمود علي البنا", u:"bna"}, {n:"مشاري العفاسي", u:"afs"}, {n:"ناصر القطامي", u:"qtm"}, {n:"هزاع البلوشي", u:"hazza"}, {n:"ياسر الدوسري", u:"yasser"}];
         
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
-        const messaging = firebase.messaging();
-
-        // 2. Data Lists
-        const surahNames = ["الفاتحة","البقرة","آل عمران","النساء","المائدة","الأنعام","الأعراف","الأنفال","التوبة","يونس","هود","يوسف","الرعد","إبراهيم","الحجر","النحل","الإسراء","الكهف","مريم","طه","الأنبياء","الحج","المؤمنون","النور","الفرقان","الشعراء","النمل","القصص","العنكبوت","الروم","لقمان","السجدة","الأحزاب","سبأ","فاطر","يس","الصافات","ص","الزمر","غافر","فصلت","الشورى","الزخرف","الدخان","الجاثية","الأحقاف","محمد","الفتح","الحجرات","ق","الذاريات","الطور","النجم","القمر","الرحمن","الواقعة","الحديد","المجادلة","الحشر","الممتحنة","الصف","الجمعة","المنافقون","التغابن","الطلاق","التحريم","الملك","القلم","الحاقة","المعارج","نوح","الجن","المزمل","المدثر","القيامة","الإنسان","المرسلات","النبأ","النازعات","عبس","التكوير","الانفطار","المطففين","الانشقاق","البروج","الطارق","الأعلى","الغاشية","الفجر","البلد","الشمس","الليل","الضحى","الشرح","التين","العلق","القدر","البينة","الزلزلة","العاديات","القارعة","التكاثر","العصر","الهمزة","الفيل","قريش","الماعون","الكوثر","الكافرون","النصر","المسد","الإخلاص","الفلق","الناس"];
-        const bukhariTitles = ["بدء الوحي", "الإيمان", "العلم", "الوضوء", "الغسل", "الحيض", "التيمم", "الصلاة", "مواقيت الصلاة", "الأذان", "الجمعة", "الخوف", "العيدين", "الوتر", "الاستسقاء", "الكسوف", "سجود القرآن", "تقصير الصلاة", "التهجد", "فضل الصلاة بمكة والمدينة", "السهو", "الجنائز", "الزكاة", "الحج", "العمرة", "المحصر", "جزاء الصيد", "فضائل المدينة", "الصوم", "صلاة التراويح", "فضل ليلة القدر", "الاعتكاف", "البيوع", "السلم", "الشفعة", "الإجارة", "الحوالات", "الكفالة", "الوكالة", "الحرث والمزارعة", "المساقاة", "الاستقراض", "الخصومات", "اللقطة", "المظالم", "الشركة", "الرهن", "العتق", "المكاتب", "الهبة", "الشهادات", "الصلح", "الشروط", "الوصايا", "الجهاد والسير", "الخمس", "الجزية", "بدء الخلق", "الأنبياء", "المناقب", "فضائل الصحابة", "مناقب الأنصار", "المغازي", "التفسير", "فضائل القرآن", "النكاح", "الطلاق", "النفقات", "الأطعمة", "العقيقة", "الذبائح والصيد", "الأضاحي", "الأشربة", "المرضى", "الطب", "اللباس", "الأدب", "الاستئذان", "الدعوات", "الرقاق", "القدر", "الأيمان والنذور", "كفارات الأيمان", "الفرائض", "الحدود", "المحاربين", "الديات", "استتابة المرتدين", "الإكراه", "الحيل", "تعبير الرؤيا", "الفتن", "الأحكام", "التمني", "أخبار الآحاد", "الاعتصام بالكتاب والسنة", "التوحيد"];
-        const eventDates = { adha: "2026-05-27", ramadan: "2027-02-08", fitr: "2027-03-10" };
-        const reciters = [{n:"أبو بكر الشاطري", u:"shatri"}, {n:"أحمد العجمي", u:"ajm"}, {n:"مشاري العفاسي", u:"afs"}, {n:"ماهر المعيقلي", u:"maher"}, {n:"عبد الباسط", u:"basit"}];
-
-        const contents = {
-            ar: { welcome: "أهلاً بك في تطبيقنا المتواضع", days: "أيام", hours: "ساعات", mins: "دقائق", secs: "ثواني", q: "القرآن", s: "البخاري", t: "الأذكار", c: "العداد", adha: "عيد الأضحى", ramadan: "رمضان", fitr: "عيد الفطر", rem: "تبقى لـ:", tTitle: "رطب لسانك بذكر الله", tBtn: "ذكر", t1: "سبحان الله", t2: "الحمد لله", t3: "الله أكبر", t4: "لا إله إلا الله", t5: "استغفر الله", copy: "© 2026 مبارك تيتشو" },
-            fr: { welcome: "Bienvenue dans notre application", days: "Jours", hours: "Heures", mins: "Min", secs: "Sec", q: "Coran", s: "Bukhari", t: "Adhkar", c: "Timer", adha: "Aïd al-Adha", ramadan: "Ramadan", fitr: "Aïd al-Fitr", rem: "Temps restant:", tTitle: "Zikr Allah", tBtn: "Zikr", t1: "Subhan Allah", t2: "Alhamdulillah", t3: "Allahu Akbar", t4: "La ilaha illa Allah", t5: "Astaghfirullah", copy: "© 2026 Mbarek Titchou" },
-            en: { welcome: "Welcome to our application", days: "Days", hours: "Hours", mins: "Mins", secs: "Secs", q: "Quran", s: "Bukhari", t: "Adhkar", c: "Counter", adha: "Eid al-Adha", ramadan: "Ramadan", fitr: "Eid al-Fitr", rem: "Remaining for:", tTitle: "Remember Allah", tBtn: "Zikr", t1: "Subhan Allah", t2: "Alhamdulillah", t3: "Allahu Akbar", t4: "La ilaha illa Allah", t5: "Astaghfirullah", copy: "© 2026 Mbarek Titchou" }
+        const langData = {
+            ar: { welcome: "أَهْلًا بِكَ أَخِي / أُخْتِي فِي تَطْبِيقِنَا المُتَوَاضِعِ، نَسْأَلُ اللَّهَ أَنْ يَتَقَبَّلَ مِنَّا وَمِنْكُمْ صَالِحَ الأَعْمَالِ.", days:"أيام", hrs:"ساعات", min:"دقائق", sec:"ثواني", rem:"تبقى لـ:", q:"القرآن", s:"البخاري", t:"الأذكار", c:"العداد", t1:"سُبْحَانَ اللَّهِ", t2:"الْحَمْدُ لِلَّهِ", t3:"اللَّهُ أَكْبَرُ", t4:"لَا إِلَهَ إِلَّا اللَّهُ", t5:"لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ", copy: "حقوق النشر © 2026 مبارك تيتشو" }
         };
 
         let currentPage = 0, tCount = 0, tCycle = 1;
         const targets = [0, 33, 33, 33, 33, 100];
-
-        // 3. Core Functions
-        function toggleLangSelect() { document.getElementById('langControls').classList.toggle('active'); }
-        function changeLang() { updateContent(); toggleLangSelect(); }
+        const eventDates = { adha: "2026-05-27", ramadan: "2027-02-08", fitr: "2027-03-10" };
 
         function switchPage(dir) {
+            document.getElementById(`p${currentPage}`).classList.remove('active');
             currentPage = (currentPage + dir + 4) % 4;
-            document.querySelectorAll('.page').forEach((p, i) => p.classList.toggle('active', i === currentPage));
-            updateContent();
+            document.getElementById(`p${currentPage}`).classList.add('active');
+            updateNav();
         }
 
-        function updateContent() {
-            const lang = document.getElementById('langSelect').value;
-            const c = contents[lang];
-            document.body.style.direction = (lang === 'ar' ? 'rtl' : 'ltr');
-            document.getElementById('btnPrev').className = `side-btn ${currentPage === 0 ? 'hidden' : ''}`;
-            document.getElementById('btnNext').className = `side-btn ${currentPage === 3 ? 'hidden' : ''}`;
-            document.getElementById('welcome-msg').innerText = c.welcome;
-            document.getElementById('t-title').innerText = c.tTitle;
-            document.getElementById('t-btn').innerText = c.tBtn;
-            document.getElementById('remain-label').innerText = c.rem;
-            document.getElementById('l-days').innerText = c.days; document.getElementById('l-hours').innerText = c.hours;
-            document.getElementById('l-mins').innerText = c.mins; document.getElementById('l-secs').innerText = c.secs;
-            document.getElementById('eventTitle').innerText = c[document.getElementById('eventSelect').value];
-            document.querySelectorAll('.cp-text').forEach(el => el.innerText = c.copy);
-            updateTasbihUI();
+        function updateNav() {
+            const pages = ["q", "s", "t", "c"];
+            document.getElementById('btnPrev').classList.toggle('hidden', currentPage === 0);
+            document.getElementById('btnNext').classList.toggle('hidden', currentPage === 3);
+            if(currentPage > 0) document.getElementById('prev-text').innerText = langData.ar[pages[currentPage-1]];
+            if(currentPage < 3) document.getElementById('next-text').innerText = langData.ar[pages[currentPage+1]];
+        }
+
+        function updateCountdown() {
+            const target = new Date(eventDates[document.getElementById('eventSelect').value]).getTime();
+            const now = new Date().getTime();
+            const diff = target - now;
+            if(diff > 0) {
+                document.getElementById('days').innerText = Math.floor(diff / 86400000);
+                document.getElementById('hours').innerText = Math.floor((diff % 86400000) / 3600000);
+                document.getElementById('minutes').innerText = Math.floor((diff % 3600000) / 60000);
+                document.getElementById('seconds').innerText = Math.floor((diff % 60000) / 1000);
+            }
+            const eventNames = { adha: "عيد الأضحى", ramadan: "شهر رمضان", fitr: "عيد الفطر" };
+            document.getElementById('eventTitle').innerText = eventNames[document.getElementById('eventSelect').value];
         }
 
         function handleTasbih() {
             tCount++;
-            if (tCount >= targets[tCycle]) moveCycle(1); 
+            if(tCount >= targets[tCycle]) moveCycle(1);
             else updateTasbihUI();
         }
 
-        function moveCycle(dir) { tCycle += dir; if (tCycle > 5) tCycle = 1; if (tCycle < 1) tCycle = 5; tCount = 0; updateTasbihUI(); }
+        function moveCycle(dir) {
+            tCycle = (tCycle + dir);
+            if(tCycle > 5) tCycle = 1; if(tCycle < 1) tCycle = 5;
+            tCount = 0; updateTasbihUI();
+        }
 
         function updateTasbihUI() {
-            const lang = document.getElementById('langSelect').value;
-            document.getElementById('tasbih-txt').innerText = contents[lang]['t' + tCycle];
+            document.getElementById('tasbih-txt').innerText = langData.ar['t'+tCycle];
             document.getElementById('tasbih-count').innerText = tCount;
-            document.getElementById('target-lbl').innerText = (lang === 'ar' ? 'الهدف: ' : 'Target: ') + targets[tCycle];
+            document.getElementById('target-lbl').innerText = "الهدف: " + targets[tCycle];
         }
 
-        function updateCountdown() {
-            const diff = new Date(eventDates[document.getElementById('eventSelect').value]).getTime() - new Date().getTime();
-            if (diff > 0) {
-                document.getElementById('days').innerText = Math.floor(diff / 86400000).toString().padStart(2, '0');
-                document.getElementById('hours').innerText = Math.floor((diff % 86400000) / 3600000).toString().padStart(2, '0');
-                document.getElementById('minutes').innerText = Math.floor((diff % 3600000) / 60000).toString().padStart(2, '0');
-                document.getElementById('seconds').innerText = Math.floor((diff % 60000) / 1000).toString().padStart(2, '0');
-            }
+        function stopAll() {
+            document.getElementById('quranPlayer').pause();
+            document.getElementById('hadithPlayer').pause();
         }
 
-        function updateAudioSource(play) {
-            const qPlayer = document.getElementById('quranPlayer');
-            const reciter = document.getElementById('reciterSelect').value;
-            const surah = document.getElementById('surahSelect').value;
-            qPlayer.src = `https://server${getServerNum(reciter)}.mp3quran.net/${reciter}/${surah}`;
-            if(play) qPlayer.play();
-        }
-
-        function updateHadithSource(play) {
-            const hPlayer = document.getElementById('hadithPlayer');
-            const num = document.getElementById('hadithSelect').value;
-            // رابط مباشر لمجلدات البخاري الصوتية
-            hPlayer.src = `https://archive.org/download/Bokharee_up_by_ayoub-islam/${num}.mp3`;
-            if(play) { hPlayer.load(); hPlayer.play(); }
-        }
-
-        function getServerNum(slug) {
-            const maps = {shatri:11, ajm:10, afs:8, maher:12, basit:7};
-            return maps[slug] || 11;
-        }
-
-        // Notifications
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('/firebase-messaging-sw.js')
-                .then((registration) => {
-                    messaging.getToken({ 
-                        vapidKey: 'BOgufrB44biCEYLxYH0Q_caoOgvGF9u6d0QuL9o_te8fNb78kgFDMU2ee8POFJ02F47RB39B4iC6ltfrW_8eciM',
-                        serviceWorkerRegistration: registration 
-                    }).then((token) => {
-                        if (token) console.log('Ready for notifications');
-                    });
-                });
-        }
-
-        window.onload = () => {
-            const rSelect = document.getElementById('reciterSelect');
-            reciters.forEach(r => { let o = document.createElement('option'); o.value = r.u; o.innerText = r.n; rSelect.appendChild(o); });
-            const sSelect = document.getElementById('surahSelect');
-            surahNames.forEach((n, i) => { let o = document.createElement('option'); o.value = (i + 1).toString().padStart(3, '0') + ".mp3"; o.innerText = (i + 1) + " - " + n; sSelect.appendChild(o); });
-            const hSelect = document.getElementById('hadithSelect');
-            bukhariTitles.forEach((t, i) => { let o = document.createElement('option'); o.value = (i + 1).toString().padStart(2, '0'); o.innerText = `المجلد ${i+1}: ${t}`; hSelect.appendChild(o); });
+        document.addEventListener('DOMContentLoaded', () => {
+            // تحميل القراء
+            const rSel = document.getElementById('reciterSelect');
+            reciters.forEach(r => rSel.add(new Option(r.n, r.u)));
             
-            updateContent(); 
+            // تحميل السور
+            const sSel = document.getElementById('surahSelect');
+            surahs.forEach((s, i) => sSel.add(new Option(`${i+1}. ${s}`, (i+1).toString().padStart(3, '0'))));
+
+            // تحميل البخاري
+            const hSel = document.getElementById('hadithSelect');
+            bukhari.forEach((t, i) => hSel.add(new Option(`${i+1}. ${t}`, (i+1).toString().padStart(2, '0'))));
+
+            // أحداث التشغيل
+            rSel.onchange = sSel.onchange = () => {
+                stopAll();
+                const qp = document.getElementById('quranPlayer');
+                const srv = {shatri:11, ajm:10, abkr:6, jleel:10, basit:7, maher:12, afs:8, hazza:11, yasser:11}[rSel.value] || 11;
+                qp.src = `https://server${srv}.mp3quran.net/${rSel.value}/${sSel.value}.mp3`;
+                qp.play();
+            };
+
+            hSel.onchange = () => {
+                stopAll();
+                const hp = document.getElementById('hadithPlayer');
+                hp.src = `https://archive.org/download/Bokharee_up_by_ayoub-islam/${hSel.value}.mp3`;
+                hp.play();
+            };
+
+            // الـ UI الأساسي
+            document.getElementById('welcome-msg').innerText = langData.ar.welcome;
+            document.getElementById('remain-label').innerText = langData.ar.rem;
+            document.getElementById('l-days').innerText = langData.ar.days;
+            document.getElementById('l-hours').innerText = langData.ar.hrs;
+            document.getElementById('l-mins').innerText = langData.ar.min;
+            document.getElementById('l-secs').innerText = langData.ar.sec;
+            document.querySelectorAll('.cp-text').forEach(el => el.innerText = langData.ar.copy);
+            
+            updateTasbihUI();
+            updateNav();
             setInterval(updateCountdown, 1000);
-            updateAudioSource(false);
-            updateHadithSource(false);
-        };
+            updateCountdown();
+        });
     </script>
 </body>
 </html>
