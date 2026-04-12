@@ -264,5 +264,37 @@
             checkConnection();
         };
     </script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-messaging.js"></script>
+
+<script>
+  // معلومات مشروعك mbarek-84c23
+  const firebaseConfig = {
+    apiKey: "AIzaSyDoruiRI56JGr6Kye8DUd6y2if9zqCxLrQ",
+    projectId: "mbarek-84c23",
+    messagingSenderId: "860470868100",
+    appId: "1:860470868100:web:3cf242746843db59532ad1"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const messaging = firebase.messaging();
+
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/firebase-messaging-sw.js')
+      .then((registration) => {
+        console.log('Service Worker Registered!');
+        
+        // هنا غتحط كود VAPID اللي كيبدأ بـ B
+        messaging.getToken({ 
+          vapidKey: 'BOgufrB44biCEYLxYH0Q_caoOgvGF9u6d0QuL9o_te8fNb78kgFDMU2ee8POFJ02F47RB39B4iC6ltfrW_8eciM',
+          serviceWorkerRegistration: registration 
+        }).then((token) => {
+          if (token) {
+            console.log('التوكن ديال هاد الجهاز هو:', token);
+          }
+        });
+      });
+  }
+</script>
 </body>
 </html>
