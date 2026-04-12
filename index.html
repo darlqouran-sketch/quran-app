@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ar">
 <head>
     <meta charset="UTF-8">
@@ -8,6 +8,7 @@
     
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-messaging-compat.js"></script>
 
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -121,27 +122,34 @@
     </div>
 
     <script>
-        // --- Firebase Configuration ---
+        // تكوين Firebase واحد ومنظم لمنع تعارض Identifier already declared
         const firebaseConfig = {
-            apiKey: "2dd21...", // ساروتك الخاص
+            apiKey: "AIzaSyDoruiRI56JGr6Kye8DUd6y2if9zqCxLrQ",
             authDomain: "mbarek-84c23.firebaseapp.com",
             databaseURL: "https://mbarek-84c23-default-rtdb.firebaseio.com",
             projectId: "mbarek-84c23",
             storageBucket: "mbarek-84c23.appspot.com",
-            appId: "1:847133642055:web:8029315"
+            messagingSenderId: "860470868100",
+            appId: "1:860470868100:web:3cf242746843db59532ad1"
         };
-        firebase.initializeApp(firebaseConfig);
+        
+        // تشغيل التطبيق مرة واحدة فقط
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        
         const db = firebase.database();
+        const messaging = firebase.messaging();
 
         const surahNames = ["الفاتحة","البقرة","آل عمران","النساء","المائدة","الأنعام","الأعراف","الأنفال","التوبة","يونس","هود","يوسف","الرعد","إبراهيم","الحجر","النحل","الإسراء","الكهف","مريم","طه","الأنبياء","الحج","المؤمنون","النور","الفرقان","الشعراء","النمل","القصص","العنكبوت","الروم","لقمان","السجدة","الأحزاب","سبأ","فاطر","يس","الصافات","ص","الزمر","غافر","فصلت","الشورى","الزخرف","الدخان","الجاثية","الأحقاف","محمد","الفتح","الحجرات","ق","الذاريات","الطور","النجم","القمر","الرحمن","الواقعة","الحديد","المجادلة","الحشر","الممتحنة","الصف","الجمعة","المنافقون","التغابن","الطلاق","التحريم","الملك","القلم","الحاقة","المعارج","نوح","الجن","المزمل","المدثر","القيامة","الإنسان","المرسلات","النبأ","النازعات","عبس","التكوير","الانفطار","المطففين","الانشقاق","البروج","الطارق","الأعلى","الغاشية","الفجر","البلد","الشمس","الليل","الضحى","الشرح","التين","العلق","القدر","البينة","الزلزلة","العاديات","القارعة","التكاثر","العصر","الهمزة","الفيل","قريش","الماعون","الكوثر","الكافرون","النصر","المسد","الإخلاص","الفلق","الناس"];
-        const bukhariTitles = ["كِتَابُ بَدْءِ الوَحْيِ", "كِتَابُ الإِيمَانِ", "كِتَابُ العِلْمِ", "كِتَابُ الوُضُوءِ", "كِتَابُ الغُسْلِ", "كِتَابُ الحَيْضِ", "كِتَابُ التَّيَمُّمِ", "كِتَابُ الصَّلَاةِ", "بَابُ مَوَاقِيتِ الصَّلَاةِ وَفَضْلِهَا", "كِتَابُ الأَذَانِ","بَابُ صَلَاةِ الخَوْفِ", "بَابٌ فِي العِيدَيْنِ", "كِتَابُ الجُمُعَةِ", "بَابُ مَا جَاءَ فِي الوِتْرِ", "بَابُ الِاسْتِسْقَاءِ وَخُرُوجِ النَّبِيِّ ﷺ", "بَابُ الصَّلَاةِ فِي كُسُوفِ الشَّمْسِ", "بَابُ مَا جَاءَ فِي سُجُودِ القُرْآنِ وَسُنَّتِهَا", "بَابُ مَا جَاءَ فِي التَّقْصِيرِ وَكَمْ يُقِيمُ", "بَابُ التَّهَجُّدِ بِاللَّيْلِ", "بَابُ فَضْلِ الصَّلَاةِ فِي مَسْجِدِ مَكَّةَ وَالمَدِينَةِ","بَابُ اسْتِعَانَةِ اليَدِ فِي الصَّلَاةِ", "بَابُ مَا جَاءَ فِي السَّهْوِ", "بَابٌ فِي الجَنَائِزِ", "كِتَابُ الزَّكَاةِ", "كِتَابُ الحَجِّ", "بَابُ العُمْرَةِ", "بَابُ المُحْصَرِ وَجزَاءِ الصَّيْدِ", "كِتَابُ فَضَائِلِ المَدِينَةِ", "كِتَابُ الصَّوْمِ", "كِتَابُ البُيُوعِ","كِتَابُ السَّلَمِ", "كِتَابُ الشُّفْعَةِ", "كِتَابُ الإِجَارَةِ", "كِتَابُ الحَوَالَاتِ", "كِتَابُ الكَفَالَةِ", "كِتَابُ الوَكَالَةِ", "كِتَابُ الحَرْثِ وَالمُزَارَعَةِ", "كِتَابُ الشَّرْبِ وَالمَسَاقَاةِ", "كِتَابُ الِاسْتِقْرَاضِ وَأَدَاءِ الدُّيُونِ", "كِتَابُ الإِشْخَاصِ وَالخُصُومَاتِ","كِتَابُ فِي اللُّقَطَةِ", "كِتَابُ المَظَالِمِ", "كِتَابُ الشَّرِكَةِ", "كِتَابُ الرَّهْنِ", "كِتَابُ العِتْقِ", "كِتَابُ المُكَاتَبِ", "كِتَابُ الهِبَةِ وَفَضْلِهَا", "كِتَابُ الشَّهَادَاتِ", "كِتَابُ الصُّلْحِ", "كِتَابُ الشُّرُوطِ","كِتَابُ الوَصَايَا", "كِتَابُ الجِهَادِ وَالسِّيَرِ", "كِتَابُ فَرْضِ الخُمُسِ", "كِتَابُ الجِزْيَةِ", "كِتَابُ بَدْءِ الخَلْقِ", "كِتَابُ أَحَادِيثِ الأَنْبِيَاءِ", "كِتَابُ المَنَاقِبِ", "كِتَابُ فَضَائِلِ أَصْحَابِ النَّبِيِّ ﷺ", "كِتَابُ مَنَاقِبِ الأَنْصَارِ", "كِتَابُ المَغَازِي","كِتَابُ التَّفْسِيرِ", "كِتَابُ فَضَائِلِ القُرْآنِ", "كِتَابُ النِّكاَحِ", "كِتَابُ الطَّلَاقِ", "كِتَابُ النَّفَقَاتِ", "كِتَابُ الأَطْعِمَةِ", "كِتَابُ العَقِيقَةِ", "كِتَابُ الذَّبَائِحِ وَالصَّيْدِ", "كِتَابُ الأَضَاحِي", "كِتَابُ الأَشْرِبَةِ","كِتَابُ المَرْضَى", "كِتَابُ الطِّبِّ", "كِتَابُ اللِّبَاسِ", "كِتَابُ الأَدَبِ", "كِتَابُ الِاسْتِئْذَانِ", "كِتَابُ الدَّعَوَاتِ", "كِتَابُ الرِّقَاقِ", "كِتَابُ القَدَرِ", "كِتَابُ الأَيْمَانِ وَالنُّذُورِ", "كِتَابُ كَفَّارَاتِ الأَيْمَانِ","كِتَابُ الفَرَائِضِ", "كِتَابُ الحُدُودِ", "كِتَابُ المُحَارِبِينَ مِنْ أَهْلِ الكُفْرِ", "كِتَابُ الدِّيَاتِ", "كِتَابُ اسْتِتَابَةِ المُرْتَدِّينَ", "كِتَابُ الإِكْرَاهِ", "كِتَابُ الحِيَلِ", "كِتَابُ التَّعْبِيرِ", "كِتَابُ الفِتَنِ", "كِتَابُ الأَحْكَامِ","كِتَابُ التَّمَنِّي", "كِتَابُ أَخْبَارِ الآحَادِ", "كِتَابُ الِاعْتِصَامِ بِالكِتَابِ وَالسُّنَّةِ", "كِتَابُ التَّوْحِيدِ"];
+        const bukhariTitles = ["كِتَابُ بَدْءِ الوَحْيِ", "كِتَابُ الإِيمَانِ", "كِتَابُ العِلْمِ", "كِتَابُ الوُضُوءِ", "كِتَابُ الغُسْلِ", "كِتَابُ الحَيْضِ", "كِتَابُ التَّيَمُّمِ", "كِتَابُ الصَّلَاةِ", "بَابُ مَوَاقِيتِ الصَّلَاةِ وَفَضْلِهَا", "كِتَابُ الأَذَانِ","بَابُ صَلَاةِ الخَوْفِ", "بَابٌ فِي العِيدَيْنِ", "كِتَابُ الجُمُعَةِ", "بَابُ مَا جَاءَ فِي الوِتْرِ", "بَابُ الِاسْتِسْقَاءِ وَخُرُوجِ النَّبِيِّ ﷺ", "بَابُ الصَّلَاةِ فِي كُسُوفِ الشَّمْسِ", "بَابُ مَا جَاءَ فِي سُجُودِ القُرْآنِ وَسُنَّتِهَا", "بَابُ مَا جَاءَ فِي التَّقْصِيرِ وَكَمْ يُقِيمُ", "بَابُ التَّهَجُّدِ بِاللَّيْلِ", "بَابُ فَضْلِ الصَّلَاةِ فِي مَسْجِدِ مَكَّةَ وَالمَدِينَةِ","بَابُ اسْتِعَانَةِ اليَدِ فِي الصَّلَاةِ", "بَابُ مَا جَاءَ فِي السَّهْوِ", "بَابٌ فِي الجَنَائِزِ", "كِتَابُ الزَّكَاةِ", "كِتَابُ الحَجِّ", "بَابُ العُمْرَةِ", "بَابُ المُحْصَرِ وَجزَاءِ الصَّيْدِ", "كِتَابُ فَضَائِلِ المَدِينَةِ", "كِتَابُ الصَّوْمِ", "كِتَابُ البُيُوعِ","كِتَابُ السَّلَمِ", "كِتَابُ الشُّفْعَةِ", "كِتَابُ الإِجَارَةِ", "كِتَابُ الحَوَالَاتِ", "كِتَابُ الكَفَالَةِ", "كِتَابُ الوَكَالَةِ", "كِتَابُ الحَرْثِ وَالمُزَارَعَةِ", "كِتَابُ الشَّرْبِ وَالمَسَاقَاةِ", "كِتَابُ الِاسْتِقْرَاضِ وَأَدَاءِ الدُّيُونِ", "كِتَابُ الإِشْخَاصِ وَالخُصُومَاتِ","كِتَابُ فِي اللُّقَطَةِ", "كِتَابُ المَغَازِي", "كِتَابُ التَّتَفْسِيرِ", "كِتَابُ فَضَائِلِ القُرْآنِ", "كِتَابُ النِّكاَحِ", "كِتَابُ الطِّبِّ", "كِتَابُ اللِّبَاسِ", "كِتَابُ الأَدَبِ", "كِتَابُ التَّعْبِيرِ", "كِتَابُ الفِتَنِ", "كِتَابُ التَّوْحِيدِ"];
         const eventDates = { adha: "2026-05-27", ramadan: "2027-02-08", fitr: "2027-03-10" };
         const reciters = [{n:"أبو بكر الشاطري", u:"shatri"}, {n:"أحمد العجمي", u:"ajm"}, {n:"إدريس أبكر", u:"abkr"}, {n:"خالد الجليل", u:"jleel"}, {n:"خالد القحطاني", u:"qht"}, {n:"سعد الغامدي", u:"s_gmd"}, {n:"عبد الباسط عبد الصمد", u:"basit"}, {n:"علي الحذيفي", u:"hthfi"}, {n:"فارس عباد", u:"frs_a"}, {n:"ماهر المعيقلي", u:"maher"}, {n:"محمد أيوب", u:"ayyub"}, {n:"محمد صديق المنشاوي", u:"minsh"}, {n:"محمد اللحيدان", u:"lhdan"}, {n:"محمود خليل الحصري", u:"husr"}, {n:"محمود علي البنا", u:"bna"}, {n:"مشاري العفاسي", u:"afs"}, {n:"ناصر القطامي", u:"qtm"}, {n:"هزاع البلوشي", u:"hazza"}, {n:"ياسر الدوسري", u:"yasser"}];
 
         const contents = {
-            ar: { welcome: "أَهْلًا بِكَ أَخِي / أُخْتِي فِي تَطْبِيقِنَا المُتَوَاضِعِ، نَسْأَلُ اللَّهَ أَنْ يَتَقَبَّلَ مِنَّا وَمِنْكُمْ صَالِحَ الأَعْمَالِ.", days: "أيام", hours: "ساعات", mins: "دقائق", secs: "ثواني", q: "القرآن", s: "صحيح البخاري", t: "الأذكار", c: "العداد", adha: "عيد الأضحى", ramadan: "رمضان", fitr: "عيد الفطر", rem: "تبقى إن شاء الله لـ:", tTitle: "رطب لسانك بذكر الله", tBtn: "ذكر", t1: "سُبْحَانَ اللَّهِ", t2: "الْحَمْدُ لِلَّهِ", t3: "اللَّهُ أَكْبَرُ", t4: "لَا إِلَهَ إِلَّا اللَّهُ", t5: "لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ", copy: "حقوق النشر © 2026 مبارك تيتشو", offT: "انقطع الاتصال!", offM: "يرجى التأكد من الإنترنت لتشغيل الملفات الصوتية." },
-            fr: { welcome: "Bienvenue, cher frère / sœur. Puisse Allah accepter nos actions.", days: "Jours", hours: "Heures", mins: "Min", secs: "Sec", q: "Coran", s: "Sahih al-Bukhari", t: "Adhkar", c: "Timer", adha: "Aïd al-Adha", ramadan: "Ramadan", fitr: "Aïd al-Fitr", rem: "Restant pour:", tTitle: "Zikr", tBtn: "Presser", t1: "Subhan Allah", t2: "Alhamdulillah", t3: "Allahu Akbar", t4: "La ilaha illa Allah", t5: "La ilaha illa Allah...", copy: "Copyright © 2026 Mbarek Titchou", offT: "Hors ligne!", offM: "Vérifiez votre connexion." },
-            en: { welcome: "Welcome, dear brother / sister. May Allah accept our deeds.", days: "Days", hours: "Hours", mins: "Mins", secs: "Secs", q: "Quran", s: "Sahih al-Bukhari", t: "Adhkar", c: "Countdown", adha: "Eid al-Adha", ramadan: "Ramadan", fitr: "Eid al-Fitr", rem: "Remaining for:", tTitle: "Zikr", tBtn: "Press", t1: "Subhan Allah", t2: "Alhamdulillah", t3: "Allahu Akbar", t4: "La ilaha illa Allah", t5: "La ilaha illa Allah...", copy: "Copyright © 2026 Mbarek Titchou", offT: "Offline!", offM: "Check internet connection." }
+            ar: { welcome: "أَهْلًا بِكَ أَخِي / أُخْتِي فِي تَطْبِيقِنَا المُتَوَاضِعِ، نَسْأَلُ اللَّهَ أَنْ يَتَقَبَّلَ مِنَّا وَمِنْكُمْ صَالِحَ الأَعْمَالِ.", days: "أيام", hours: "ساعات", mins: "دقائق", secs: "ثواني", q: "القرآن", s: "صحيح البخاري", t: "الأذكار", c: "العداد", adha: "عيد الأضحى", ramadan: "رمضان", fitr: "عيد الفطر", rem: "تبقى إن شاء الله لـ:", tTitle: "رطب لسانك بذكر الله", tBtn: "ذكر", t1: "سُبْحَانَ اللَّهِ", t2: "الْحَمْدُ لِلَّهِ", t3: "اللَّهُ أَكْبَرُ", t4: "لَا إِلَهَ إِلَّا اللَّهُ", t5: "لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ...", copy: "حقوق النشر © 2026 مبارك تيتشو", offT: "انقطع الاتصال!", offM: "يرجى التأكد من الإنترنت." },
+            fr: { welcome: "Bienvenue, cher frère / sœur.", days: "Jours", hours: "Heures", mins: "Min", secs: "Sec", q: "Coran", s: "Sahih al-Bukhari", t: "Adhkar", c: "Timer", adha: "Aïd al-Adha", ramadan: "Ramadan", fitr: "Aïd al-Fitr", rem: "Restant pour:", tTitle: "Zikr", tBtn: "Presser", t1: "Subhan Allah", t2: "Alhamdulillah", t3: "Allahu Akbar", t4: "La ilaha illa Allah", t5: "La ilaha illa Allah...", copy: "Copyright © 2026 Mbarek Titchou", offT: "Hors ligne!", offM: "Vérifiez votre connexion." },
+            en: { welcome: "Welcome, dear brother / sister.", days: "Days", hours: "Hours", mins: "Mins", secs: "Secs", q: "Quran", s: "Sahih al-Bukhari", t: "Adhkar", c: "Countdown", adha: "Eid al-Adha", ramadan: "Ramadan", fitr: "Eid al-Fitr", rem: "Remaining for:", tTitle: "Zikr", tBtn: "Press", t1: "Subhan Allah", t2: "Alhamdulillah", t3: "Allahu Akbar", t4: "La ilaha illa Allah", t5: "La ilaha illa Allah...", copy: "Copyright © 2026 Mbarek Titchou", offT: "Offline!", offM: "Check internet connection." }
         };
 
         let currentPage = 0, tCount = 0, tCycle = 1;
@@ -174,7 +182,6 @@
             const c = contents[lang];
             document.body.setAttribute('lang', lang);
             document.body.style.direction = (lang === 'ar' ? 'rtl' : 'ltr');
-            
             document.getElementById('btnPrev').className = `side-btn ${currentPage === 0 ? 'hidden' : ''}`;
             document.getElementById('btnNext').className = `side-btn ${currentPage === 3 ? 'hidden' : ''}`;
             document.getElementById('prev-text').innerText = c[pageKeys[(currentPage - 1 + 4) % 4]];
@@ -192,10 +199,9 @@
             updateTasbihUI(); updateCountdown();
         }
 
-        // --- Tasbih with Firebase ---
         function handleTasbih() {
             tCount++;
-            db.ref('tasbih_global').set(tCount); // حفظ في فايربيس
+            db.ref('tasbih_global').set(tCount);
             if (tCount >= targets[tCycle]) moveCycle(1); 
             else updateTasbihUI();
         }
@@ -219,12 +225,11 @@
             }
         }
 
-        // --- Audio Management (Prevent Overlapping) ---
         function updateAudioSource(play) {
             if(!checkConnection()) return;
             const qPlayer = document.getElementById('quranPlayer');
             const hPlayer = document.getElementById('hadithPlayer');
-            hPlayer.pause(); // إيقاف الحديث إذا اشتغل القرآن
+            hPlayer.pause();
             const reciter = document.getElementById('reciterSelect').value;
             const surah = document.getElementById('surahSelect').value;
             qPlayer.src = `https://server${getServerNum(reciter)}.mp3quran.net/${reciter}/${surah}`;
@@ -235,7 +240,7 @@
             if(!checkConnection()) return;
             const qPlayer = document.getElementById('quranPlayer');
             const hPlayer = document.getElementById('hadithPlayer');
-            qPlayer.pause(); // إيقاف القرآن إذا اشتغل الحديث
+            qPlayer.pause();
             const num = document.getElementById('hadithSelect').value;
             hPlayer.src = `https://archive.org/download/Bokharee_up_by_ayoub-islam/${num}.mp3`;
             if(play) { hPlayer.load(); hPlayer.play(); }
@@ -246,6 +251,22 @@
             return maps[slug] || 11;
         }
 
+        // تفعيل الإشعارات بمسار مصلح لـ GitHub Pages
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/quran-app/firebase-messaging-sw.js')
+                .then((registration) => {
+                    console.log('Service Worker Registered!');
+                    messaging.getToken({ 
+                        vapidKey: 'BOgufrB44biCEYLxYH0Q_caoOgvGF9u6d0QuL9o_te8fNb78kgFDMU2ee8POFJ02F47RB39B4iC6ltfrW_8eciM',
+                        serviceWorkerRegistration: registration 
+                    }).then((token) => {
+                        if (token) console.log('Device ready for notifications! Token:', token);
+                    }).catch((err) => {
+                        console.log('Notification error:', err);
+                    });
+                });
+        }
+
         window.onload = () => {
             const rSelect = document.getElementById('reciterSelect');
             reciters.forEach(r => { let o = document.createElement('option'); o.value = r.u; o.innerText = r.n; rSelect.appendChild(o); });
@@ -253,48 +274,11 @@
             surahNames.forEach((n, i) => { let o = document.createElement('option'); o.value = (i + 1).toString().padStart(3, '0') + ".mp3"; o.innerText = (i + 1) + " - " + n; sSelect.appendChild(o); });
             const hSelect = document.getElementById('hadithSelect');
             bukhariTitles.forEach((t, i) => { let o = document.createElement('option'); o.value = (i + 1).toString().padStart(2, '0'); o.innerText = `${i+1}. ${t}`; hSelect.appendChild(o); });
-            
-            // جلب قيمة العداد من فايربيس عند التشغيل
-            db.ref('tasbih_global').once('value').then((snap) => {
-                if(snap.exists()) { tCount = snap.val(); updateTasbihUI(); }
-            });
-
+            db.ref('tasbih_global').once('value').then((snap) => { if(snap.exists()) { tCount = snap.val(); updateTasbihUI(); } });
             updateContent(); 
             setInterval(updateCountdown, 1000);
             checkConnection();
         };
     </script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-messaging.js"></script>
-
-<script>
-  // معلومات مشروعك mbarek-84c23
-  const firebaseConfig = {
-    apiKey: "AIzaSyDoruiRI56JGr6Kye8DUd6y2if9zqCxLrQ",
-    projectId: "mbarek-84c23",
-    messagingSenderId: "860470868100",
-    appId: "1:860470868100:web:3cf242746843db59532ad1"
-  };
-
-  firebase.initializeApp(firebaseConfig);
-  const messaging = firebase.messaging();
-
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/firebase-messaging-sw.js')
-      .then((registration) => {
-        console.log('Service Worker Registered!');
-        
-        // هنا غتحط كود VAPID اللي كيبدأ بـ B
-        messaging.getToken({ 
-          vapidKey: 'BOgufrB44biCEYLxYH0Q_caoOgvGF9u6d0QuL9o_te8fNb78kgFDMU2ee8POFJ02F47RB39B4iC6ltfrW_8eciM',
-          serviceWorkerRegistration: registration 
-        }).then((token) => {
-          if (token) {
-            console.log('التوكن ديال هاد الجهاز هو:', token);
-          }
-        });
-      });
-  }
-</script>
 </body>
 </html>
