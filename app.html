@@ -1,0 +1,789 @@
+﻿<!DOCTYPE html>
+<html lang="ar" dir="rtl" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مصحف الحافظ - رفيق الحفظ والمراجعة</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Cairo', sans-serif; }
+        .quran-font { font-family: 'Amiri', serif; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: rgba(0,0,0,0.05); }
+        ::-webkit-scrollbar-thumb { background: #047857; border-radius: 4px; }
+    </style>
+</head>
+<body class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-gray-100 min-h-screen pb-24 transition-colors duration-300">
+
+    <!-- Header -->
+    <header class="bg-emerald-900 dark:bg-emerald-950 text-white shadow-lg py-4 px-6 mb-6 border-b border-emerald-800 dark:border-emerald-900">
+        <div class="max-w-4xl mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <svg class="w-9 h-9 text-amber-400 drop-shadow-md" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M4 19.5V6C4 5.44772 4.44772 5 5 5H10C11.1046 5 12 5.89543 12 7V20.5C12 19.9477 11.5523 19.5 11 19.5H5C4.44772 19.5 4 19.9477 4 20.5V19.5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M20 19.5V6C20 5.44772 19.5523 5 19 5H14C12.8954 5 12 5.89543 12 7V20.5C12 19.9477 12.4477 19.5 13 19.5H19C19.5523 19.5 20 19.9477 20 20.5V19.5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M12 7V19.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M8 9H10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    <path d="M14 9H16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+                <div>
+                    <h1 class="text-lg font-bold quran-font leading-tight text-amber-300">رفيق الحافظ</h1>
+                    <p class="text-[10px] text-emerald-200">رفيقك في حفظ وتدبر القرآن الكريم</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <button onclick="toggleTheme()" class="bg-emerald-800 dark:bg-emerald-900 text-amber-300 p-2 rounded-xl text-xs shadow hover:bg-emerald-700 transition" title="تبديل الوضع">
+                    <span id="theme-icon">☀️</span>
+                </button>
+                <button onclick="requestNotificationPermission()" class="bg-emerald-800 dark:bg-emerald-900 text-emerald-200 p-2 rounded-xl text-xs shadow hover:bg-emerald-700 transition" title="تفعيل التنبيهات">
+                    🔔
+                </button>
+                <span id="streak-badge" class="bg-amber-500 text-amber-950 font-bold px-3 py-1 rounded-full text-xs shadow-sm">🔥 0 أيام</span>
+                <span id="date-today" class="text-xs bg-emerald-800 text-emerald-200 px-3 py-1 rounded-full border border-emerald-700 hidden sm:inline-block"></span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Toast Notifications -->
+    <div id="toast-container" class="fixed top-5 left-1/2 transform -translate-x-1/2 z-50 w-11/12 max-w-md transition-all duration-300 opacity-0 pointer-events-none">
+        <div id="toast-box" class="bg-emerald-800 text-white px-5 py-3.5 rounded-2xl shadow-xl border border-emerald-600 flex items-center justify-between gap-3">
+            <div class="flex items-center gap-2.5">
+                <span id="toast-icon" class="text-xl">✨</span>
+                <p id="toast-msg" class="text-sm font-semibold"></p>
+            </div>
+            <button onclick="hideToast()" class="text-emerald-200 hover:text-white text-xs font-bold">✕</button>
+        </div>
+    </div>
+
+    <main class="max-w-4xl mx-auto px-4 space-y-6">
+
+        <!-- TAB 1: Wird & Daily Routine -->
+        <div id="section-wird" class="space-y-6">
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm text-center">
+                    <p class="text-xs text-slate-500 dark:text-slate-400">أخطاء التسميع</p>
+                    <p id="stat-errors" class="text-xl font-bold text-red-500 dark:text-red-400 mt-1">0</p>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm text-center">
+                    <p class="text-xs text-slate-500 dark:text-slate-400">مهام اليوم المنجزة</p>
+                    <p id="stat-tasks" class="text-xl font-bold text-emerald-600 dark:text-emerald-400 mt-1">0</p>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm text-center col-span-2 sm:col-span-1">
+                    <p class="text-xs text-slate-500 dark:text-slate-400">حالة الاستمرارية</p>
+                    <p class="text-xl font-bold text-amber-500 dark:text-amber-400 mt-1">ممتازة ✨</p>
+                </div>
+            </div>
+
+            <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm p-5 border border-slate-200 dark:border-slate-700">
+                <h2 class="text-lg font-bold text-emerald-700 dark:text-emerald-400 mb-3">📝 وردي اليومي والمراجعة</h2>
+                <div class="flex flex-col sm:flex-row gap-2 mb-4">
+                    <select id="task-type" class="px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-sm font-semibold text-slate-700 dark:text-slate-200 focus:outline-none">
+                        <option value="حفظ جديد">حفظ جديد</option>
+                        <option value="مراجعة">مراجعة</option>
+                    </select>
+                    <input type="text" id="task-input" placeholder="مثلاً: من سورة البقرة آية 1 إلى 20..." class="flex-1 px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-sm text-slate-800 dark:text-slate-100 focus:outline-none focus:border-emerald-500">
+                    <button onclick="addTask()" class="bg-emerald-700 text-white px-5 py-2.5 rounded-xl text-sm font-bold hover:bg-emerald-600 transition">إضافة للورد</button>
+                </div>
+                <div id="tasks-list" class="space-y-2"></div>
+            </div>
+
+            <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm p-5 border border-slate-200 dark:border-slate-700">
+                <h2 class="text-lg font-bold text-emerald-700 dark:text-emerald-400 mb-3">⚠️ تسجيل أخطاء التسميع</h2>
+                <div class="flex gap-2 mb-4">
+                    <input type="text" id="error-input" placeholder="اكتب الآية أو موضع الخطأ..." class="flex-1 px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-sm text-slate-800 dark:text-slate-100 focus:outline-none focus:border-emerald-500">
+                    <button onclick="addError()" class="bg-red-600 text-white px-5 py-2.5 rounded-xl text-sm font-bold hover:bg-red-500 transition">إضافة خطأ</button>
+                </div>
+                <div id="errors-list" class="space-y-2 max-h-48 overflow-y-auto"></div>
+            </div>
+        </div>
+
+        <!-- TAB 2: History -->
+        <div id="section-history" class="space-y-6 hidden">
+            <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm p-5 border border-slate-200 dark:border-slate-700">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-lg font-bold text-emerald-700 dark:text-emerald-400">🏆 سجل الإنجازات والأرشيف</h2>
+                    <button onclick="clearHistory()" class="text-xs text-red-500 dark:text-red-400 hover:underline">مسح السجل</button>
+                </div>
+                <div id="history-list" class="space-y-2 max-h-[500px] overflow-y-auto"></div>
+            </div>
+        </div>
+
+        <!-- TAB 3: Quran & Audio API -->
+        <div id="section-quran" class="space-y-6 hidden">
+            <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm p-5 border border-slate-200 dark:border-slate-700">
+                <div class="flex flex-col gap-3 mb-4">
+                    <div class="flex justify-between items-center flex-wrap gap-2">
+                        <h2 class="text-lg font-bold text-emerald-700 dark:text-emerald-400">📖 المصحف والصوتيات والاختبار</h2>
+                        <button onclick="toggleQuizMode()" id="quiz-mode-btn" class="bg-amber-600 text-white px-3 py-1.5 rounded-xl text-xs font-bold hover:bg-amber-500 transition">🧠 تفعيل وضع اختبار الحفظ</button>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                        <div>
+                            <label class="block text-xs text-slate-500 dark:text-slate-400 mb-1">اختر القارئ:</label>
+                            <select id="api-reciter-select" onchange="onReciterChange()" class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-xs font-semibold text-slate-700 dark:text-slate-200 focus:outline-none">
+                                <option value="">جاري تحميل القراء...</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs text-slate-500 dark:text-slate-400 mb-1">اختر الرواية / المصحف:</label>
+                            <select id="api-moshaf-select" onchange="onMoshafChange()" class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-xs font-semibold text-slate-700 dark:text-slate-200 focus:outline-none">
+                                <option value="">اختر القارئ أولاً</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs text-slate-500 dark:text-slate-400 mb-1">اختر السورة:</label>
+                            <select id="api-surah-select" onchange="loadSurahAyahs()" class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-xs font-semibold text-slate-700 dark:text-slate-200 focus:outline-none">
+                                <option value="">اختر الرواية أولاً</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Audio Player -->
+                <div class="bg-emerald-900 dark:bg-emerald-950 text-white p-4 rounded-xl flex flex-col sm:flex-row items-center justify-between gap-3 mb-4 border border-emerald-800 dark:border-emerald-900">
+                    <div>
+                        <p id="audio-info-label" class="text-xs text-emerald-200">الاستماع للتلاوة</p>
+                        <p id="current-audio-title" class="font-semibold text-sm">اختر سورة للبدء</p>
+                    </div>
+                    <div class="flex items-center gap-2 w-full sm:w-auto">
+                        <audio id="audio-player" controls class="h-10 w-full sm:w-48"></audio>
+                        <button onclick="toggleRecording()" id="rec-btn" class="bg-red-600 hover:bg-red-500 text-white px-3 py-2 rounded-xl text-xs font-bold transition whitespace-nowrap">🎙️ تسجيل</button>
+                    </div>
+                </div>
+
+                <!-- Save Audio Box -->
+                <div id="recording-box" class="hidden mb-4 p-4 bg-slate-100 dark:bg-slate-900 rounded-xl border border-slate-300 dark:border-slate-700 space-y-3">
+                    <p class="text-xs font-bold text-emerald-700 dark:text-emerald-400">🎙️ استماع لتسجيلك الصوتي الأخير:</p>
+                    <audio id="recorded-audio" controls class="w-full h-8"></audio>
+                    <div class="flex gap-2">
+                        <input type="text" id="rec-title-input" placeholder="عنوان التسجيل (مثلاً: سورة البقرة مقطع 1)..." class="flex-1 px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-xs text-slate-800 dark:text-slate-100 focus:outline-none">
+                        <button onclick="saveCurrentRecording()" class="bg-emerald-700 hover:bg-emerald-600 text-white px-4 py-2 rounded-xl text-xs font-bold transition">حفظ في السجل</button>
+                    </div>
+                </div>
+
+                <!-- Surah Ayahs & Tafsir Container -->
+                <div id="ayahs-container" class="space-y-4 max-h-[450px] overflow-y-auto p-2 border border-slate-200 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-900">
+                    <p class="text-center text-slate-500 dark:text-slate-400 py-10">اختر سورة لعرض الآيات والتفسير الميسر...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 4: Saved Recordings -->
+        <div id="section-recordings" class="space-y-6 hidden">
+            <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm p-5 border border-slate-200 dark:border-slate-700">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-lg font-bold text-emerald-700 dark:text-emerald-400">🎙️ سجل التسجيلات الصوتية المحفوظة</h2>
+                    <button onclick="clearAllRecordings()" class="text-xs text-red-500 dark:text-red-400 hover:underline">حذف الكل</button>
+                </div>
+                <div id="saved-recordings-list" class="space-y-3 max-h-[500px] overflow-y-auto"></div>
+            </div>
+        </div>
+
+        <!-- TAB 5: Similarities & Notes -->
+        <div id="section-notes" class="space-y-6 hidden">
+            <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm p-5 border border-slate-200 dark:border-slate-700">
+                <h2 class="text-lg font-bold text-emerald-700 dark:text-emerald-400 mb-3">🔗 المتشابهات والملاحظات</h2>
+                <div class="space-y-3 mb-4">
+                    <input type="text" id="note-title" placeholder="عنوان الملاحظة (مثلاً: متشابهات سورة البقرة)..." class="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-sm text-slate-800 dark:text-slate-100 focus:outline-none focus:border-emerald-500">
+                    <textarea id="note-content" placeholder="اكتب المتشابهات أو الملاحظة هنا..." class="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-sm text-slate-800 dark:text-slate-100 focus:outline-none focus:border-emerald-500 h-24"></textarea>
+                    <button onclick="addNote()" class="w-full bg-emerald-700 text-white py-2.5 rounded-xl text-sm font-bold hover:bg-emerald-600 transition">حفظ الملاحظة</button>
+                </div>
+                <div id="notes-list" class="space-y-3 max-h-64 overflow-y-auto"></div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Bottom Navigation Bar -->
+    <nav class="fixed bottom-0 left-0 right-0 bg-emerald-900/95 dark:bg-emerald-950/95 backdrop-blur-md border-t border-emerald-800 dark:border-emerald-900 py-2.5 px-4 shadow-2xl z-40">
+        <div class="max-w-md mx-auto flex justify-around items-center text-xs font-semibold">
+            <button onclick="switchTab('wird')" id="tab-wird" class="flex flex-col items-center gap-1 text-amber-400 transition-all">
+                <span class="text-xl">📖</span>
+                <span>الورد اليومي</span>
+            </button>
+            <button onclick="switchTab('history')" id="tab-history" class="flex flex-col items-center gap-1 text-slate-300 dark:text-slate-400 hover:text-emerald-200 transition-all">
+                <span class="text-xl">🏆</span>
+                <span>الإنجازات</span>
+            </button>
+            <button onclick="switchTab('quran')" id="tab-quran" class="flex flex-col items-center gap-1 text-slate-300 dark:text-slate-400 hover:text-emerald-200 transition-all">
+                <span class="text-xl">🎧</span>
+                <span>المصحف</span>
+            </button>
+            <button onclick="switchTab('recordings')" id="tab-recordings" class="flex flex-col items-center gap-1 text-slate-300 dark:text-slate-400 hover:text-emerald-200 transition-all">
+                <span class="text-xl">🎙️</span>
+                <span>التسجيلات</span>
+            </button>
+            <button onclick="switchTab('notes')" id="tab-notes" class="flex flex-col items-center gap-1 text-slate-300 dark:text-slate-400 hover:text-emerald-200 transition-all">
+                <span class="text-xl">🔗</span>
+                <span>المتشابهات</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- JavaScript Application Logic -->
+    <script>
+        document.getElementById('date-today').innerText = new Date().toLocaleDateString('ar-MA', { weekday: 'long', month: 'long', day: 'numeric' });
+
+        let appData = JSON.parse(localStorage.getItem('quran_app_data_v20')) || {
+            streak: 0,
+            lastActiveDate: '',
+            theme: 'dark',
+            tasks: [
+                { id: 1, type: 'حفظ جديد', text: 'سورة البقرة (الآيات 1 - 10)' },
+                { id: 2, type: 'مراجعة', text: 'مراجعة الحزب الأول' }
+            ],
+            history: [],
+            errors: [],
+            notes: [],
+            recordings: []
+        };
+
+        let mp3RecitersData = JSON.parse(localStorage.getItem('cached_reciters')) || [];
+        let isQuizModeActive = false;
+        let mediaRecorder;
+        let audioChunks = [];
+        let isRecording = false;
+        let lastRecordedBlob = null;
+
+        if (appData.theme === 'light') {
+            document.documentElement.classList.remove('dark');
+            document.getElementById('theme-icon').innerText = '🌙';
+        } else {
+            document.documentElement.classList.add('dark');
+            document.getElementById('theme-icon').innerText = '☀️';
+        }
+
+        function toggleTheme() {
+            if (document.documentElement.classList.contains('dark')) {
+                document.documentElement.classList.remove('dark');
+                appData.theme = 'light';
+                document.getElementById('theme-icon').innerText = '🌙';
+            } else {
+                document.documentElement.classList.add('dark');
+                appData.theme = 'dark';
+                document.getElementById('theme-icon').innerText = '☀️';
+            }
+            saveData();
+        }
+
+        function requestNotificationPermission() {
+            if ('Notification' in window) {
+                Notification.requestPermission().then(permission => {
+                    if (permission === 'granted') {
+                        showToast('تم تفعيل إشعارات الورد اليومي بنجاح!', '🔔');
+                        new Notification('رفيق الحافظ', { body: 'لا تنسَ مراجعة وردك القرآني اليومي لتحافظ على الاستمرارية!' });
+                    } else {
+                        showToast('تم رفض إذن الإشعارات', '⚠️');
+                    }
+                });
+            } else {
+                showToast('متصفحك لا يدعم الإشعارات', '❌');
+            }
+        }
+
+        function showToast(msg, icon = '✨') {
+            const container = document.getElementById('toast-container');
+            document.getElementById('toast-msg').innerText = msg;
+            document.getElementById('toast-icon').innerText = icon;
+            container.classList.remove('opacity-0', 'pointer-events-none');
+            setTimeout(hideToast, 3500);
+        }
+
+        function hideToast() {
+            document.getElementById('toast-container').classList.add('opacity-0', 'pointer-events-none');
+        }
+
+        function checkStreak() {
+            const today = new Date().toDateString();
+            if (appData.lastActiveDate !== today) {
+                const yesterday = new Date(Date.now() - 86400000).toDateString();
+                if (appData.lastActiveDate === yesterday || !appData.lastActiveDate) {
+                    appData.streak += 1;
+                }
+                appData.lastActiveDate = today;
+                saveData();
+            }
+            document.getElementById('streak-badge').innerText = `🔥 ${appData.streak} أيام`;
+        }
+
+        function saveData() {
+            localStorage.setItem('quran_app_data_v20', JSON.stringify(appData));
+        }
+
+        function switchTab(tabName) {
+            ['wird', 'history', 'quran', 'recordings', 'notes'].forEach(t => {
+                document.getElementById(`section-${t}`).classList.add('hidden');
+                const btn = document.getElementById(`tab-${t}`);
+                if(btn) btn.className = "flex flex-col items-center gap-1 text-slate-300 dark:text-slate-400 hover:text-emerald-200 transition-all";
+            });
+            document.getElementById(`section-${tabName}`).classList.remove('hidden');
+            const activeBtn = document.getElementById(`tab-${tabName}`);
+            if(activeBtn) activeBtn.className = "flex flex-col items-center gap-1 text-amber-400 transition-all font-bold";
+        }
+
+        function addTask() {
+            const type = document.getElementById('task-type').value;
+            const textInput = document.getElementById('task-input');
+            if (!textInput.value.trim()) return;
+            appData.tasks.push({ id: Date.now(), type, text: textInput.value });
+            textInput.value = '';
+            saveData();
+            renderTasks();
+            showToast('تمت إضافة الورد بنجاح!', '📖');
+        }
+
+        function completeTask(id) {
+            const index = appData.tasks.findIndex(t => t.id === id);
+            if (index !== -1) {
+                const completedTask = appData.tasks.splice(index, 1)[0];
+                completedTask.completedAt = new Date().toLocaleString('ar-MA', { dateStyle: 'medium', timeStyle: 'short' });
+                appData.history.unshift(completedTask);
+                saveData();
+                renderTasks();
+                renderHistory();
+                showToast('تهانينا! لقد أنجزت وردك اليومي بنجاح.', '🏆');
+            }
+        }
+
+        function deleteTask(id) {
+            appData.tasks = appData.tasks.filter(t => t.id !== id);
+            saveData();
+            renderTasks();
+        }
+
+        function clearHistory() {
+            if (confirm('هل تريد مسح سجل الإنجازات بالكامل؟')) {
+                appData.history = [];
+                saveData();
+                renderHistory();
+                showToast('تم مسح السجل بنجاح', '🗑️');
+            }
+        }
+
+        function renderTasks() {
+            const list = document.getElementById('tasks-list');
+            list.innerHTML = '';
+            if (appData.tasks.length === 0) {
+                list.innerHTML = '<p class="text-xs text-slate-400 text-center py-3">أكملت جميع مهام اليوم! أحسنت.</p>';
+                document.getElementById('stat-tasks').innerText = appData.history.length;
+                return;
+            }
+            appData.tasks.forEach(task => {
+                const isReview = task.type === 'مراجعة';
+                const div = document.createElement('div');
+                div.className = `flex items-center justify-between p-4 rounded-xl border ${isReview ? 'bg-amber-50 dark:bg-amber-950/20 border-amber-200 dark:border-amber-800/50' : 'bg-emerald-50 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-800/50'}`;
+                div.innerHTML = `
+                    <div>
+                        <span class="text-xs px-2 py-0.5 rounded font-semibold ${isReview ? 'bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300' : 'bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300'}">${task.type}</span>
+                        <p class="font-semibold mt-1 text-slate-800 dark:text-slate-200">${task.text}</p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="completeTask(${task.id})" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-600 text-white hover:bg-emerald-500 transition">تم الإنجاز ✓</button>
+                        <button onclick="deleteTask(${task.id})" class="text-red-500 dark:text-red-400 hover:underline text-xs px-2">حذف</button>
+                    </div>
+                `;
+                list.appendChild(div);
+            });
+            document.getElementById('stat-tasks').innerText = appData.history.length;
+            document.getElementById('stat-errors').innerText = appData.errors.length;
+        }
+
+        function renderHistory() {
+            const list = document.getElementById('history-list');
+            list.innerHTML = '';
+            if (appData.history.length === 0) {
+                list.innerHTML = '<p class="text-xs text-slate-400 text-center py-6">لم تقم بإنجاز أي مهمة بعد.</p>';
+                return;
+            }
+            appData.history.forEach(item => {
+                const isReview = item.type === 'مراجعة';
+                const div = document.createElement('div');
+                div.className = "flex items-center justify-between p-3.5 rounded-xl border bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-700 text-sm";
+                div.innerHTML = `
+                    <div>
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="text-xs px-2 py-0.5 rounded font-semibold ${isReview ? 'bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300' : 'bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300'}">${item.type}</span>
+                            <span class="text-[10px] text-slate-400">${item.completedAt}</span>
+                        </div>
+                        <p class="font-semibold text-slate-800 dark:text-slate-200">${item.text}</p>
+                    </div>
+                    <span class="text-emerald-600 dark:text-emerald-400 font-bold text-lg">✓</span>
+                `;
+                list.appendChild(div);
+            });
+            document.getElementById('stat-tasks').innerText = appData.history.length;
+        }
+
+        function addError() {
+            const input = document.getElementById('error-input');
+            if (!input.value.trim()) return;
+            appData.errors.unshift({ id: Date.now(), text: input.value });
+            input.value = '';
+            saveData();
+            renderErrors();
+            showToast('تم تسجيل الخطأ للمراجعة', '⚠️');
+        }
+
+        function deleteError(id) {
+            appData.errors = appData.errors.filter(e => e.id !== id);
+            saveData();
+            renderErrors();
+        }
+
+        function renderErrors() {
+            const list = document.getElementById('errors-list');
+            list.innerHTML = '';
+            if (appData.errors.length === 0) {
+                list.innerHTML = '<p class="text-xs text-slate-400 text-center py-2">لا توجد أخطاء مسجلة، أحسنت!</p>';
+                return;
+            }
+            appData.errors.forEach(err => {
+                const div = document.createElement('div');
+                div.className = "flex justify-between items-center bg-red-50 dark:bg-red-950/30 p-3 rounded-xl border border-red-200 dark:border-red-900/40 text-xs text-red-700 dark:text-red-200";
+                div.innerHTML = `<span>${err.text}</span><button onclick="deleteError(${err.id})" class="text-red-600 dark:text-red-400 font-bold hover:underline">حذف ✓</button>`;
+                list.appendChild(div);
+            });
+            document.getElementById('stat-errors').innerText = appData.errors.length;
+        }
+
+        function addNote() {
+            const title = document.getElementById('note-title').value;
+            const content = document.getElementById('note-content').value;
+            if (!title || !content) return;
+            appData.notes.unshift({ id: Date.now(), title, content });
+            document.getElementById('note-title').value = '';
+            document.getElementById('note-content').value = '';
+            saveData();
+            renderNotes();
+            showToast('تم حفظ المتشابهة بنجاح', '🔗');
+        }
+
+        function deleteNote(id) {
+            appData.notes = appData.notes.filter(n => n.id !== id);
+            saveData();
+            renderNotes();
+        }
+
+        function renderNotes() {
+            const list = document.getElementById('notes-list');
+            list.innerHTML = '';
+            if (appData.notes.length === 0) {
+                list.innerHTML = '<p class="text-xs text-slate-400 text-center py-2">لا توجد ملاحظات مسجلة.</p>';
+                return;
+            }
+            appData.notes.forEach(note => {
+                const div = document.createElement('div');
+                div.className = "bg-slate-50 dark:bg-slate-900/60 p-3 rounded-xl border border-slate-200 dark:border-slate-700 text-sm";
+                div.innerHTML = `<div class="flex justify-between font-bold text-emerald-700 dark:text-emerald-400 mb-1"><span>${note.title}</span><button onclick="deleteNote(${note.id})" class="text-red-500 dark:text-red-400 text-xs">حذف</button></div><p class="text-xs text-slate-600 dark:text-slate-300">${note.content}</p>`;
+                list.appendChild(div);
+            });
+        }
+
+        async function toggleRecording() {
+            const recBtn = document.getElementById('rec-btn');
+            const recordingBox = document.getElementById('recording-box');
+            
+            if (!isRecording) {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    mediaRecorder = new MediaRecorder(stream);
+                    audioChunks = [];
+                    
+                    mediaRecorder.ondataavailable = event => {
+                        audioChunks.push(event.data);
+                    };
+                    
+                    mediaRecorder.onstop = () => {
+                        lastRecordedBlob = new Blob(audioChunks, { type: 'audio/mp3' });
+                        const audioUrl = URL.createObjectURL(lastRecordedBlob);
+                        document.getElementById('recorded-audio').src = audioUrl;
+                        recordingBox.classList.remove('hidden');
+                        showToast('انتهى التسجيل، قم بكتابة عنوان وحفظه', '🎙️');
+                    };
+                    
+                    mediaRecorder.start();
+                    isRecording = true;
+                    recBtn.innerText = '⏹️ إيقاف';
+                    recBtn.classList.remove('bg-red-600');
+                    recBtn.classList.add('bg-slate-700', 'animate-pulse');
+                    showToast('جاري تسجيل التسميع الصوتي...', '🎙️');
+                } catch (err) {
+                    showToast('تعذر الوصول إلى الميكروفون', '❌');
+                }
+            } else {
+                mediaRecorder.stop();
+                isRecording = false;
+                recBtn.innerText = '🎙️ تسجيل';
+                recBtn.classList.remove('bg-slate-700', 'animate-pulse');
+                recBtn.classList.add('bg-red-600');
+            }
+        }
+
+        function saveCurrentRecording() {
+            if (!lastRecordedBlob) return;
+            const titleInput = document.getElementById('rec-title-input');
+            const title = titleInput.value.trim() || `تسميع بتاريخ ${new Date().toLocaleDateString('ar-MA')}`;
+
+            const reader = new FileReader();
+            reader.readAsDataURL(lastRecordedBlob);
+            reader.onloadend = function() {
+                const base64Audio = reader.result;
+                if (!appData.recordings) appData.recordings = [];
+                
+                appData.recordings.unshift({
+                    id: Date.now(),
+                    title: title,
+                    date: new Date().toLocaleString('ar-MA', { dateStyle: 'medium', timeStyle: 'short' }),
+                    audioData: base64Audio
+                });
+
+                saveData();
+                renderSavedRecordings();
+                titleInput.value = '';
+                document.getElementById('recording-box').classList.add('hidden');
+                showToast('تم حفظ التسجيل في السجل بنجاح!', '✅');
+                switchTab('recordings');
+            }
+        }
+
+        function renderSavedRecordings() {
+            const list = document.getElementById('saved-recordings-list');
+            if (!list) return;
+            list.innerHTML = '';
+            
+            if (!appData.recordings || appData.recordings.length === 0) {
+                list.innerHTML = '<p class="text-xs text-slate-400 text-center py-6">لا توجد تسجيلات صوتية محفوظة بعد.</p>';
+                return;
+            }
+
+            appData.recordings.forEach(rec => {
+                const div = document.createElement('div');
+                div.className = "bg-slate-50 dark:bg-slate-900/60 p-4 rounded-xl border border-slate-200 dark:border-slate-700 space-y-2";
+                div.innerHTML = `
+                    <div class="flex justify-between items-center">
+                        <span class="font-bold text-sm text-slate-800 dark:text-slate-100">${rec.title}</span>
+                        <button onclick="deleteRecording(${rec.id})" class="text-red-500 dark:text-red-400 text-xs hover:underline">حذف</button>
+                    </div>
+                    <p class="text-[10px] text-slate-400">${rec.date}</p>
+                    <audio controls class="w-full h-8 mt-1" src="${rec.audioData}"></audio>
+                `;
+                list.appendChild(div);
+            });
+        }
+
+        function deleteRecording(id) {
+            appData.recordings = appData.recordings.filter(r => r.id !== id);
+            saveData();
+            renderSavedRecordings();
+            showToast('تم حذف التسجيل بنجاح', '🗑️');
+        }
+
+        function clearAllRecordings() {
+            if (confirm('هل تريد مسح جميع التسجيلات الصوتية المحفوظة؟')) {
+                appData.recordings = [];
+                saveData();
+                renderSavedRecordings();
+                showToast('تم مسح جميع التسجيلات', '🗑️');
+            }
+        }
+
+        function toggleQuizMode() {
+            isQuizModeActive = !isQuizModeActive;
+            const btn = document.getElementById('quiz-mode-btn');
+            if (isQuizModeActive) {
+                btn.className = "bg-emerald-600 text-white px-3 py-1.5 rounded-xl text-xs font-bold hover:bg-emerald-500 transition";
+                btn.innerText = "🧠 إيقاف وضع الاختبار";
+                showToast('تم تفعيل وضع اختبار الحفظ (اضغط على الكلمات المخفية لإظهارها)', '💡');
+            } else {
+                btn.className = "bg-amber-600 text-white px-3 py-1.5 rounded-xl text-xs font-bold hover:bg-amber-500 transition";
+                btn.innerText = "🧠 تفعيل وضع اختبار الحفظ";
+                showToast('تم إيقاف وضع الاختبار', '📖');
+            }
+            loadSurahAyahs();
+        }
+
+        async function fetchMp3QuranReciters() {
+            try {
+                const res = await fetch('https://www.mp3quran.net/api/v3/reciters?language=ar');
+                const data = await res.json();
+                mp3RecitersData = data.reciters;
+                localStorage.setItem('cached_reciters', JSON.stringify(mp3RecitersData));
+                populateReciters();
+            } catch (err) {
+                if (mp3RecitersData.length > 0) {
+                    populateReciters();
+                    showToast('أنت تعمل في وضع الأوفلاين (البيانات المخزنة)', '📴');
+                } else {
+                    document.getElementById('api-reciter-select').innerHTML = '<option>لا توجد بيانات مخزنة</option>';
+                }
+            }
+        }
+
+        function populateReciters() {
+            const reciterSelect = document.getElementById('api-reciter-select');
+            reciterSelect.innerHTML = '';
+            mp3RecitersData.forEach((reciter, index) => {
+                const opt = document.createElement('option');
+                opt.value = index;
+                opt.innerText = reciter.name;
+                reciterSelect.appendChild(opt);
+            });
+            onReciterChange();
+        }
+
+        function onReciterChange() {
+            const reciterIndex = document.getElementById('api-reciter-select').value;
+            const moshafSelect = document.getElementById('api-moshaf-select');
+            moshafSelect.innerHTML = '';
+
+            if (reciterIndex === '' || !mp3RecitersData[reciterIndex]) return;
+
+            const selectedReciter = mp3RecitersData[reciterIndex];
+            selectedReciter.moshaf.forEach((m, mIndex) => {
+                const opt = document.createElement('option');
+                opt.value = mIndex;
+                opt.innerText = `${m.name} (${m.surah_total} سورة)`;
+                moshafSelect.appendChild(opt);
+            });
+
+            onMoshafChange();
+        }
+
+        function onMoshafChange() {
+            const reciterIndex = document.getElementById('api-reciter-select').value;
+            const moshafIndex = document.getElementById('api-moshaf-select').value;
+            const surahSelect = document.getElementById('api-surah-select');
+            surahSelect.innerHTML = '';
+
+            if (reciterIndex === '' || moshafIndex === '') return;
+
+            const moshaf = mp3RecitersData[reciterIndex].moshaf[moshafIndex];
+            const surahList = moshaf.surah_list.split(',');
+
+            fetch('https://api.alquran.cloud/v1/surah')
+                .then(res => res.json())
+                .then(data => {
+                    localStorage.setItem('cached_surahs', JSON.stringify(data.data));
+                    buildSurahDropdown(data.data, surahList);
+                })
+                .catch(() => {
+                    const cachedSurahs = JSON.parse(localStorage.getItem('cached_surahs'));
+                    if (cachedSurahs) {
+                        buildSurahDropdown(cachedSurahs, surahList);
+                    }
+                });
+        }
+
+        function buildSurahDropdown(surahs, surahList) {
+            const surahSelect = document.getElementById('api-surah-select');
+            surahSelect.innerHTML = '';
+            surahs.forEach(surah => {
+                if (surahList.includes(surah.number.toString())) {
+                    const opt = document.createElement('option');
+                    opt.value = surah.number;
+                    opt.innerText = `${surah.number}. ${surah.name}`;
+                    surahSelect.appendChild(opt);
+                }
+            });
+            loadSurahAyahs();
+        }
+
+        function loadSurahAyahs() {
+            const surahNum = document.getElementById('api-surah-select').value;
+            const reciterIndex = document.getElementById('api-reciter-select').value;
+            const moshafIndex = document.getElementById('api-moshaf-select').value;
+
+            if (!surahNum || reciterIndex === '' || moshafIndex === '') return;
+
+            const moshaf = mp3RecitersData[reciterIndex].moshaf[moshafIndex];
+            const serverUrl = moshaf.server;
+            const formattedSurahNum = String(surahNum).padStart(3, '0');
+            
+            const audioPlayer = document.getElementById('audio-player');
+            audioPlayer.src = `${serverUrl}/${formattedSurahNum}.mp3`;
+            document.getElementById('audio-info-label').innerText = `القارئ: ${mp3RecitersData[reciterIndex].name} | ${moshaf.name}`;
+            document.getElementById('current-audio-title').innerText = `تلاوة ${document.getElementById('api-surah-select').options[document.getElementById('api-surah-select'].selectedIndex].text}`;
+
+            renderAyahsContent(surahNum);
+        }
+
+        async function renderAyahsContent(surahNum) {
+            const container = document.getElementById('ayahs-container');
+            container.innerHTML = '<p class="text-center text-emerald-600 dark:text-emerald-400 py-6">جاري تحميل الآيات والتفسير...</p>';
+
+            try {
+                const [quranRes, tafsirRes] = await Promise.all([
+                    fetch(`https://api.alquran.cloud/v1/surah/${surahNum}`),
+                    fetch(`https://api.alquran.cloud/v1/surah/${surahNum}/ar.muyassar`)
+                ]);
+                
+                const quranData = await quranRes.json();
+                const tafsirData = await tafsirRes.json();
+
+                localStorage.setItem(`cached_surah_${surahNum}`, JSON.stringify(quranData.data));
+                localStorage.setItem(`cached_tafsir_${surahNum}`, JSON.stringify(tafsirData.data));
+
+                displayAyahs(quranData.data.ayahs, tafsirData.data.ayahs);
+            } catch (err) {
+                const cachedQuran = JSON.parse(localStorage.getItem(`cached_surah_${surahNum}`));
+                const cachedTafsir = JSON.parse(localStorage.getItem(`cached_tafsir_${surahNum}`));
+                if (cachedQuran && cachedTafsir) {
+                    displayAyahs(cachedQuran.ayahs, cachedTafsir.ayahs);
+                } else {
+                    container.innerHTML = '<p class="text-center text-red-500 py-6">لا توجد اتصال بالإنترنت ولا نسخة مخزنة.</p>';
+                }
+            }
+        }
+
+        function displayAyahs(ayahs, tafsirs) {
+            const container = document.getElementById('ayahs-container');
+            container.innerHTML = '';
+            ayahs.forEach((ayah, index) => {
+                const tafsirText = tafsirs[index] ? tafsirs[index].text : '';
+                
+                let processedText = ayah.text;
+                if (isQuizModeActive) {
+                    const words = ayah.text.split(' ');
+                    processedText = words.map(w => {
+                        if (w.length > 2 && Math.random() > 0.6) {
+                            return `<span class="bg-slate-300 dark:bg-slate-700 text-transparent rounded px-1 cursor-pointer select-none hover:text-slate-800 dark:hover:text-slate-100 transition" onclick="this.classList.toggle('text-transparent'); this.classList.toggle('bg-slate-300');">${w}</span>`;
+                        }
+                        return w;
+                    }).join(' ');
+                }
+
+                const div = document.createElement('div');
+                div.className = "p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 space-y-2 shadow-sm";
+                div.innerHTML = `
+                    <div class="flex justify-between items-center text-xs text-emerald-600 dark:text-emerald-400 font-semibold">
+                        <span>الآية ${ayah.numberInSurah}</span>
+                        <span class="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700">الجزء ${ayah.juz}</span>
+                    </div>
+                    <p class="quran-font text-xl text-slate-800 dark:text-slate-100 text-right leading-loose">${processedText} ﴿${ayah.numberInSurah}﴾</p>
+                    <details class="text-xs text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-800 p-2.5 rounded-lg border border-slate-200 dark:border-slate-700">
+                        <summary class="cursor-pointer font-semibold text-emerald-600 dark:text-emerald-400">التفسير الميسر</summary>
+                        <p class="mt-1.5 leading-relaxed text-slate-600 dark:text-slate-300">${tafsirText}</p>
+                    </details>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        // التهيئة الأولية
+        checkStreak();
+        renderTasks();
+        renderHistory();
+        renderErrors();
+        renderNotes();
+        renderSavedRecordings();
+        fetchMp3QuranReciters();
+    </script>
+</body>
+</html>
