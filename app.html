@@ -92,7 +92,6 @@
             <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm p-5 border border-slate-200 dark:border-slate-700">
                 <div class="flex justify-between items-center mb-4">
                     <h2 class="text-lg font-bold text-emerald-700 dark:text-emerald-400">🏆 سجل الإنجازات والأرشيف</h2>
-                    <button onclick="clearHistory()" class="text-xs text-red-500 dark:text-red-400 hover:underline">مسح السجل</button>
                 </div>
                 <div id="history-list" class="space-y-2 max-h-[500px] overflow-y-auto"></div>
             </div>
@@ -237,6 +236,7 @@
             document.getElementById('section-' + tabName).classList.remove('hidden');
             document.getElementById('tab-' + tabName).className = "flex flex-col items-center gap-1 text-amber-400 font-bold";
             if(tabName === 'recordings') renderSavedRecordings();
+            if(tabName === 'history') renderHistory();
         }
 
         function addTask() {
@@ -263,6 +263,13 @@
             saveData(); renderTasks();
         }
 
+        function deleteHistoryItem(id) {
+            appData.history = appData.history.filter(item => item.id !== id);
+            saveData();
+            renderHistory();
+            showToast('تم حذف الإنجاز', '🗑️');
+        }
+
         function renderTasks() {
             const list = document.getElementById('tasks-list');
             list.innerHTML = appData.tasks.length ? '' : '<p class="text-xs text-slate-400 text-center py-2">لا توجد مهام اليوم</p>';
@@ -287,8 +294,16 @@
             const list = document.getElementById('history-list');
             list.innerHTML = appData.history.length ? '' : '<p class="text-xs text-slate-400 text-center py-4">السجل فارغ</p>';
             appData.history.forEach(item => {
-                list.innerHTML += `<div class="p-3 bg-slate-100 dark:bg-slate-900 rounded-xl text-xs flex justify-between"><span>${item.text}</span><span class="text-emerald-500 font-bold">✓</span></div>`;
+                list.innerHTML += `
+                    <div class="p-3 bg-slate-100 dark:bg-slate-900 rounded-xl text-xs flex justify-between items-center">
+                        <div>
+                            <span class="font-bold text-emerald-600 dark:text-emerald-400">${item.text}</span>
+                            <span class="text-[10px] text-slate-400 block mt-0.5">${item.completedAt || ''}</span>
+                        </div>
+                        <button onclick="deleteHistoryItem(${item.id})" class="text-red-500 hover:underline">حذف</button>
+                    </div>`;
             });
+            document.getElementById('stat-tasks').innerText = appData.history.length;
         }
 
         function addError() {
